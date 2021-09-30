@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.taufik.notesroom.R
@@ -17,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding
-    private lateinit var noteAdapter: NoteAdapter
+    private lateinit var noteAdapter: NotePagedListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setData() {
-        noteAdapter = NoteAdapter(this)
+        noteAdapter = NotePagedListAdapter(this)
         binding?.apply {
             with(rvNotes) {
                 layoutManager = LinearLayoutManager(this@MainActivity)
@@ -48,9 +49,9 @@ class MainActivity : AppCompatActivity() {
         return ViewModelProvider(activity, factory)[MainViewModel::class.java]
     }
 
-    private val noteObserver = Observer<List<Note>> {
+    private val noteObserver = Observer<PagedList<Note>> {
         if (it != null) {
-            noteAdapter.setListNotes(it)
+            noteAdapter.submitList(it)
         }
     }
 
