@@ -2,6 +2,8 @@ package com.taufik.notesroom.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -12,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.taufik.notesroom.R
 import com.taufik.notesroom.database.Note
 import com.taufik.notesroom.databinding.ActivityMainBinding
+import com.taufik.notesroom.helper.SortUtils
 import com.taufik.notesroom.helper.ViewModelFactory
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding
     private lateinit var noteAdapter: NotePagedListAdapter
+    private lateinit var mainViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +43,7 @@ class MainActivity : AppCompatActivity() {
                 adapter = noteAdapter
             }
 
-           val mainViewModel = obtainViewModel(this@MainActivity)
-            mainViewModel.getAllNotes().observe(this@MainActivity, noteObserver)
+           mainViewModel = obtainViewModel(this@MainActivity)
         }
     }
 
@@ -83,6 +86,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSnackBarMessage(message: String) {
         Snackbar.make(binding?.root as View, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var sort = ""
+        when (item.itemId) {
+            R.id.action_newest -> sort = SortUtils.NEWEST
+            R.id.action_oldest -> sort = SortUtils.OLDEST
+            R.id.action_random -> sort = SortUtils.RANDOM
+        }
+        mainViewModel.getAllNotes(sort).observe(this@MainActivity, noteObserver)
+        item.isChecked = true
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onDestroy() {
